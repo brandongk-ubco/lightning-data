@@ -1,0 +1,7 @@
+pandas
+torch
+pytorch-lightning
+torchvision
+imgaug
+albumentations
+argh

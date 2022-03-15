@@ -1,0 +1,13 @@
+name: lightningdata
+channels:
+  - pytorch
+  - conda-forge
+  - r
+dependencies:
+  - python=3.8
+  - pytorch
+  - git
+  - pip
+  - pip:
+    - -r requirements.txt
+    - -r requirements-dev.txt
