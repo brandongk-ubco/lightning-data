@@ -4,7 +4,7 @@ import os
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-with open("requirements", "r") as fh:
+with open("requirements.txt", "r") as fh:
     requirements = fh.readlines()
 
 setuptools.setup(name="lightningdata",
