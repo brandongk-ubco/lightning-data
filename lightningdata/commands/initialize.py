@@ -8,6 +8,3 @@ def initialize(dataset: Datasets):
     Dataset = Datasets.get(dataset)
     dataset = Dataset()
     dataset.initialize()
-
-    import pdb
-    pdb.set_trace()

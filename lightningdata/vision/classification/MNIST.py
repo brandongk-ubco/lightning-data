@@ -13,8 +13,8 @@ class MNIST(VisionDataModule):
         try:
             datasets.MNIST(root=self.data_dir)
         except RuntimeError as e:
-            if "Dataset not found" in e.message:
-                self.logger.warn(e.message)
+            if "Dataset not found" in str(e):
+                self.logger.warn(e)
             else:
                 raise e
 
