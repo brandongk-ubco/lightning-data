@@ -1,0 +1,1 @@
+autoalbument-search --config-dir tmp

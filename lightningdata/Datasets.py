@@ -1,4 +1,4 @@
-from lightningdata.vision.classification import MNIST
+from lightningdata.vision.classification import MNistDataModule
 from enum import Enum
 
 
@@ -17,6 +17,6 @@ class Datasets(Enum):
 
     def get(dataset):
         if dataset == "mnist":
-            return MNIST
+            return MNistDataModule
 
         raise ValueError("Dataset {} not defined".format(dataset))

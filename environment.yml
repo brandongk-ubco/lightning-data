@@ -2,11 +2,11 @@ name: lightningdata
 channels:
   - pytorch
   - conda-forge
-  - r
 dependencies:
   - python=3.8
   - pytorch
-  - git
+  - jupyterlab
+  - ipywidgets
   - pip
   - pip:
     - -r requirements.txt

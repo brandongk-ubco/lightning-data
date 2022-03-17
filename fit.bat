@@ -1,0 +1,1 @@
+python tmp.py fit --data.num_workers 0 --data.batch_size 128

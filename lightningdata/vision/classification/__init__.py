@@ -1,3 +1,3 @@
-from .MNIST import MNIST
+from .Mnist import MNistDataSet, MNistDataModule
 
-__all__ = [MNIST]
+__all__ = [MNistDataSet, MNistDataModule]

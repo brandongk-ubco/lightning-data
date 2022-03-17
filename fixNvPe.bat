@@ -1,0 +1,1 @@
+python fixNvPe.py --input=C:\Users\brand\miniconda3\envs\lightningdata\lib\site-packages\torch\lib\*.dll --backup 0
