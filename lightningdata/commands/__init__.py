@@ -1,3 +1,3 @@
-from .initialize import initialize
+from .visualize import visualize
 
-__all__ = [initialize]
+__all__ = [visualize]

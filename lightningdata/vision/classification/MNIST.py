@@ -6,7 +6,6 @@ import torch
 import logging
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-import numpy as np
 
 
 def albumentations_transform(image, transform):
@@ -127,6 +126,10 @@ class MNistDataModule(VisionDataModule):
         self.test_dataset = MNistDataSet(root=self.data_dir,
                                          split="test",
                                          seed=self.seed)
+
+    @property
+    def classes(self):
+        return self.train_dataset.classes
 
     @property
     def train_data(self):
