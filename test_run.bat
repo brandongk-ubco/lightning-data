@@ -1,0 +1,1 @@
+python tmp.py test --data.num_workers 1 --ckpt_path "lightning_logs/version_9/checkpoints/epoch=9-val_loss=0.004341.ckpt"

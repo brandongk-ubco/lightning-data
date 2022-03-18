@@ -2,11 +2,11 @@ from lightningdata.vision import VisionDataModule
 from torchvision import datasets
 import os
 from functools import partial
-import numpy as np
 import torch
 import logging
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+import numpy as np
 
 
 def albumentations_transform(image, transform):
@@ -75,7 +75,9 @@ class MNistDataSet(datasets.MNIST):
         expected_shape = img.shape
 
         if self.transform is not None:
+            # img = np.repeat(img[..., np.newaxis], 3, axis=-1)
             img = self.transform(img)["image"]
+            # img = img[:, :, 0]
 
         if self.patch_transform is not None and expected_shape != img.shape:
             img = self.patch_transform(image=img)["image"]
@@ -98,13 +100,24 @@ class MNistDataSet(datasets.MNIST):
 
 class MNistDataModule(VisionDataModule):
 
-    def __init__(self, seed=42, *args, **kwargs):
+    def __init__(self, seed=42, augment_policy_path=None, *args, **kwargs):
         kwargs["name"] = "mnist"
         super().__init__(*args, **kwargs)
+
+        if augment_policy_path is not None:
+            augment_policy_path = os.path.abspath(augment_policy_path)
+            assert os.path.exists(augment_policy_path)
+            augment_data_format = augment_policy_path[-4:]
+            assert augment_data_format in ["yaml", "json"]
+            augments = A.load(augment_policy_path,
+                              data_format=augment_data_format)
+        else:
+            augments = None
 
         self.seed = seed
         self.train_dataset = MNistDataSet(root=self.data_dir,
                                           split="train",
+                                          transform=augments,
                                           seed=self.seed)
 
         self.val_dataset = MNistDataSet(root=self.data_dir,
