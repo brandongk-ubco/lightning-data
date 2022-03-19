@@ -1,1 +1,0 @@
-python %0\..\example.py fit --data=CIFAR10 --data.num_workers 0 --data.batch_size 128 --data.augment_policy_path "lightningdata/policies/CIFAR10.yaml"

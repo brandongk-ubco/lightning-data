@@ -5,3 +5,5 @@ torchvision
 albumentations
 argh
 matplotlib
+git+https://github.com/Project-MONAI/MONAI#egg=monai
+jsonargparse[signatures]
