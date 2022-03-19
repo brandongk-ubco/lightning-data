@@ -1,7 +1,7 @@
-import lightningdata
+import lightningdata  # noqa: F401
+from lightningdata.models import Classifier
 import sys
 from pytorch_lightning.utilities.cli import LightningCLI
-from Model import Classifier
 
 
 class MyLightningCLI(LightningCLI):
@@ -16,7 +16,6 @@ class MyLightningCLI(LightningCLI):
 
 
 if __name__ == "__main__":
-
     cli = MyLightningCLI(Classifier,
                          seed_everything_default=42,
                          trainer_defaults={

@@ -4,8 +4,10 @@ from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, Mode
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 import monai
 import torchmetrics
+from pytorch_lightning.utilities.cli import MODEL_REGISTRY
 
 
+@MODEL_REGISTRY
 class Classifier(LightningModule):
 
     def __init__(

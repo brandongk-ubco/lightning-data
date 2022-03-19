@@ -1,10 +1,13 @@
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
-from argh import arg
 from matplotlib import pyplot as plt
 import torch
 
 
-def visualize(data: str, augment_policy_path: str = None, rows=10, columns=10):
+def visualize(data: str,
+              augment_policy_path: str = None,
+              rows=10,
+              columns=10,
+              examples=1):
 
     Dataset = DATAMODULE_REGISTRY[data]
 
@@ -14,17 +17,19 @@ def visualize(data: str, augment_policy_path: str = None, rows=10, columns=10):
     dataloader = dataset.train_dataloader()
     dataiter = iter(dataloader)
 
+    shown = 0
     num_figs = rows * columns
     for i, sample in enumerate(dataiter):
+        if shown >= examples:
+            break
         idx = i % num_figs
 
         if idx == 0:
             plt.close()
             fig = plt.figure(figsize=(11, 11))
 
-        x, y = sample
-        clazz_idx = int(torch.argmax(y))
-        clazz = dataset.classes[clazz_idx]
+        x, _ = sample
+
         fig.add_subplot(rows, columns, idx + 1)
         img = torch.squeeze(x[0, :, :, :])
         if img.dim() == 2:
@@ -38,4 +43,5 @@ def visualize(data: str, augment_policy_path: str = None, rows=10, columns=10):
         plt.axis('off')
 
         if idx == num_figs - 1:
+            shown += 1
             plt.show()

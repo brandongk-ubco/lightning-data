@@ -1,4 +1,4 @@
-from lightningdata.vision import VisionDataModule
+from ..VisionDataModule import VisionDataModule
 from torchvision import datasets
 import os
 from functools import partial
