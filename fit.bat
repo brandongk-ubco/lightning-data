@@ -1,1 +1,1 @@
-python tmp.py fit --data.num_workers 0 --data.batch_size 128 --data.augment_policy_path "lightningdata/policies/mnist.yaml"
+python tmp.py fit --data=CIFAR10 --data.num_workers 0 --data.batch_size 128 --data.augment_policy_path "lightningdata/policies/CIFAR10.yaml"

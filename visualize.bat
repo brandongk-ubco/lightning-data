@@ -1,1 +1,1 @@
-python -m lightningdata visualize mnist --augment-policy-path "lightningdata/policies/mnist.yaml"
+python -m lightningdata visualize MNist

@@ -10,21 +10,19 @@ class Classifier(LightningModule):
 
     def __init__(
         self,
+        num_classes: int,
+        in_channels: int,
         patience: int = 3,
         learning_rate: float = 5e-3,
         min_learning_rate: float = 5e-4,
         weight_decay: float = 0.0,
     ):
         super().__init__()
+        self.save_hyperparameters()
 
-        self.patience = patience
-        self.learning_rate = learning_rate
-        self.min_learning_rate = min_learning_rate
-        self.weight_decay = weight_decay
-
-        self.model = torch.nn.Sequential(torch.nn.Conv2d(1, 3, (1, 1)),
-                                         torch.nn.InstanceNorm2d(3),
-                                         self.get_model(), torch.nn.Sigmoid())
+        self.model = torch.nn.Sequential(
+            torch.nn.Conv2d(self.hparams.in_channels, 3, (1, 1)),
+            torch.nn.InstanceNorm2d(3), self.get_model(), torch.nn.Sigmoid())
 
         self.loss = torch.nn.BCELoss()
 
@@ -35,7 +33,7 @@ class Classifier(LightningModule):
     def configure_callbacks(self):
         callbacks = [
             LearningRateMonitor(logging_interval='epoch', log_momentum=True),
-            EarlyStopping(patience=2 * self.patience,
+            EarlyStopping(patience=2 * self.hparams.patience,
                           monitor='val_loss',
                           verbose=True,
                           mode='min'),
@@ -52,10 +50,11 @@ class Classifier(LightningModule):
         return callbacks
 
     def get_model(self):
-        return monai.networks.nets.EfficientNetBN("efficientnet-b0",
-                                                  spatial_dims=2,
-                                                  pretrained=True,
-                                                  num_classes=10)
+        return monai.networks.nets.EfficientNetBN(
+            "efficientnet-b0",
+            spatial_dims=2,
+            pretrained=True,
+            num_classes=self.hparams.num_classes)
 
     def training_step(self, batch, _batch_idx):
         x, y = batch
@@ -103,13 +102,13 @@ class Classifier(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(),
-                                     lr=self.learning_rate,
-                                     weight_decay=self.weight_decay)
+                                     lr=self.hparams.learning_rate,
+                                     weight_decay=self.hparams.weight_decay)
 
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
-            patience=self.patience,
-            min_lr=self.min_learning_rate,
+            patience=self.hparams.patience,
+            min_lr=self.hparams.min_learning_rate,
             verbose=True,
             mode="min")
 

@@ -1,0 +1,44 @@
+---
+__version__: 1.1.0
+transform:
+  __class_fullname__: Compose
+  p: 1
+  transforms:
+    - __class_fullname__: OneOf
+      p: 1
+      transforms:
+      - __class_fullname__: Blur
+        p: 0.5
+        blur_limit:
+          - 3
+          - 5
+      - __class_fullname__: MedianBlur
+        p: 0.25
+        blur_limit:
+          - 3
+          - 5
+    - __class_fullname__: ShiftScaleRotate
+      p: 0.5
+      rotate_limit: 10
+      border_mode: 0
+      value: 0
+    - __class_fullname__: CoarseDropout
+      p: 0.2
+      max_holes: 16
+      max_height: 3
+      max_width: 3
+      min_holes: 8
+      min_height: 1
+      min_width: 1
+      fill_value: 0
+    - __class_fullname__: Normalize
+      always_apply: false
+      p: 1
+      mean:
+      - 0.5
+      std:
+      - 0.2
+      max_pixel_value: 255
+  bbox_params:
+  keypoint_params:
+  additional_targets: {}

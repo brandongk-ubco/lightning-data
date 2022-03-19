@@ -1,16 +1,13 @@
-from lightningdata import Datasets
+from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from argh import arg
 from matplotlib import pyplot as plt
 import torch
 
 
-@arg('dataset', choices=Datasets.choices())
-def visualize(dataset: Datasets,
-              augment_policy_path: str = None,
-              rows=10,
-              columns=10):
+def visualize(data: str, augment_policy_path: str = None, rows=10, columns=10):
 
-    Dataset = Datasets.get(dataset)
+    Dataset = DATAMODULE_REGISTRY[data]
+
     dataset = Dataset(augment_policy_path=augment_policy_path,
                       num_workers=0,
                       batch_size=1)
@@ -33,9 +30,11 @@ def visualize(dataset: Datasets,
         if img.dim() == 2:
             plt.imshow(img, cmap="gray")
         elif img.dim() == 3:
-            plt.imshow(img)
+            plt.imshow(img.moveaxis(0, -1))
         else:
-            raise ValueError(f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {img.dim()}")
+            raise ValueError(
+                f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {img.dim()}"
+            )
         plt.axis('off')
 
         if idx == num_figs - 1:

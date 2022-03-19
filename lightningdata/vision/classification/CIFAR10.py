@@ -13,7 +13,7 @@ def albumentations_transform(image, transform):
     return transform(image=image)
 
 
-class MNistDataSet(datasets.MNIST):
+class CIFAR10DataSet(datasets.CIFAR10):
 
     def __init__(self,
                  root,
@@ -28,7 +28,7 @@ class MNistDataSet(datasets.MNIST):
 
         assert split in ["train", "val", "test"]
 
-        self.logger.info(f"Loading {split} split from {root}")
+        self.logger.info(f"Loading {split} from {root}")
 
         if transform is not None:
             transform = partial(albumentations_transform, transform=transform)
@@ -42,6 +42,8 @@ class MNistDataSet(datasets.MNIST):
             A.PadIfNeeded(min_height=32, min_width=32, always_apply=True),
             A.RandomCrop(height=32, width=32, always_apply=True)
         ])
+
+        self.targets = torch.LongTensor(self.targets)
 
         if split in ["train", "val"]:
             val_count = int(len(self.data) * val_percentage)
@@ -63,7 +65,6 @@ class MNistDataSet(datasets.MNIST):
             for t in self.targets
         ])
 
-        self.data = self.data.numpy()
         self.targets = self.targets.numpy()
 
     def __getitem__(self, index: int):
@@ -75,9 +76,7 @@ class MNistDataSet(datasets.MNIST):
         expected_shape = img.shape
 
         if self.transform is not None:
-            # img = np.repeat(img[..., np.newaxis], 3, axis=-1)
             img = self.transform(img)["image"]
-            # img = img[:, :, 0]
 
         if self.patch_transform is not None and expected_shape != img.shape:
             img = self.patch_transform(image=img)["image"]
@@ -89,23 +88,15 @@ class MNistDataSet(datasets.MNIST):
 
         return img, target
 
-    @property
-    def raw_folder(self) -> str:
-        return os.path.join(self.root, "raw")
-
-    @property
-    def processed_folder(self) -> str:
-        return os.path.join(self.root, "processed")
-
 
 @DATAMODULE_REGISTRY
-class MNist(VisionDataModule):
+class CIFAR10(VisionDataModule):
 
     def __init__(self, seed=42, augment_policy_path=None, *args, **kwargs):
-        kwargs["name"] = "mnist"
+        kwargs["name"] = "cifar10"
         super().__init__(*args, **kwargs)
 
-        self.in_channels = 1
+        self.in_channels = 3
 
         if augment_policy_path is not None:
             augment_policy_path = os.path.abspath(augment_policy_path)
@@ -118,18 +109,18 @@ class MNist(VisionDataModule):
             augments = None
 
         self.seed = seed
-        self.train_dataset = MNistDataSet(root=self.data_dir,
-                                          split="train",
-                                          transform=augments,
+        self.train_dataset = CIFAR10DataSet(root=self.data_dir,
+                                            split="train",
+                                            transform=augments,
+                                            seed=self.seed)
+
+        self.val_dataset = CIFAR10DataSet(root=self.data_dir,
+                                          split="val",
                                           seed=self.seed)
 
-        self.val_dataset = MNistDataSet(root=self.data_dir,
-                                        split="val",
-                                        seed=self.seed)
-
-        self.test_dataset = MNistDataSet(root=self.data_dir,
-                                         split="test",
-                                         seed=self.seed)
+        self.test_dataset = CIFAR10DataSet(root=self.data_dir,
+                                           split="test",
+                                           seed=self.seed)
 
     @property
     def num_classes(self):

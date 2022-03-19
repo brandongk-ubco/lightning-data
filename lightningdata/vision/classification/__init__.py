@@ -1,3 +1,4 @@
-from .Mnist import MNistDataSet, MNistDataModule
+from .Mnist import MNist
+from .CIFAR10 import CIFAR10
 
-__all__ = [MNistDataSet, MNistDataModule]
+__all__ = [CIFAR10, MNist]
