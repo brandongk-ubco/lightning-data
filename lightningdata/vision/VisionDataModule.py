@@ -2,15 +2,13 @@ from pytorch_lightning.core.datamodule import LightningDataModule
 import os
 from torch.utils.data import DataLoader
 import albumentations as A
-from typing import Union
 
 
 class VisionDataModule(LightningDataModule):
 
     def __init__(self,
                  name: str = None,
-                 num_workers: Union[int,
-                                    None] = int(os.environ.get("NUM_WORKERS")),
+                 num_workers: int = int(os.environ.get("NUM_WORKERS", 0)),
                  train_augment_policy: str = None,
                  batch_size: int = 4,
                  dataset_split_seed: int = 42,
@@ -20,13 +18,8 @@ class VisionDataModule(LightningDataModule):
                  *args,
                  **kwargs):
         super().__init__(*args, **kwargs)
+        assert name is not None
         self.name = name
-        if num_workers is None:
-            cpu_count = os.cpu_count()
-            if cpu_count is None:
-                num_workers = 1
-            else:
-                num_workers = cpu_count
 
         if not data_dir:
             data_dir = os.environ.get("OVERRIDE_DATA_DIR",
