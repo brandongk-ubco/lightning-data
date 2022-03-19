@@ -1,5 +1,5 @@
 import lightningdata  # noqa: F401
-from lightningdata.models import Classifier
+from Model import Classifier
 import sys
 from pytorch_lightning.utilities.cli import LightningCLI
 

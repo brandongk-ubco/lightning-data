@@ -3,3 +3,5 @@ pytest-cov
 flake8
 yapf
 autoalbument@https://github.com/brandongk-ubco/autoalbument/archive/refs/heads/master.zip
+git+https://github.com/Project-MONAI/MONAI#egg=monai
+jsonargparse[signatures]
