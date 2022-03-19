@@ -17,15 +17,26 @@ def visualize(dataset: Datasets,
     dataloader = dataset.train_dataloader()
     dataiter = iter(dataloader)
 
-    fig = plt.figure(figsize=(11, 11))
     num_figs = rows * columns
-    for i in range(1, num_figs + 1):
-        x, y = next(dataiter)
+    for i, sample in enumerate(dataiter):
+        idx = i % num_figs
+
+        if idx == 0:
+            plt.close()
+            fig = plt.figure(figsize=(11, 11))
+
+        x, y = sample
         clazz_idx = int(torch.argmax(y))
         clazz = dataset.classes[clazz_idx]
-        fig.add_subplot(rows, columns, i)
+        fig.add_subplot(rows, columns, idx + 1)
         img = torch.squeeze(x[0, :, :, :])
-        plt.imshow(img, cmap="gray")
+        if img.dim() == 2:
+            plt.imshow(img, cmap="gray")
+        elif img.dim() == 3:
+            plt.imshow(img)
+        else:
+            raise ValueError(f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {img.dim()}")
         plt.axis('off')
 
-    plt.show()
+        if idx == num_figs - 1:
+            plt.show()
