@@ -54,14 +54,17 @@ class Segmenter(LightningModule):
         return callbacks
 
     def get_model(self):
-        return smp.DeepLabV3Plus(encoder_name='efficientnet-b0',
-                                 encoder_weights="imagenet")
+        return smp.Unet(encoder_name='efficientnet-b0',
+                        encoder_weights="imagenet",
+                        classes=self.hparams.num_classes)
 
     def training_step(self, batch, _batch_idx):
         x, y = batch
         y_hat = self(x)
 
+        torch.use_deterministic_algorithms(False)
         self.train_iou(torch.round(y_hat).int(), torch.round(y).int())
+        torch.use_deterministic_algorithms(True)
         self.log('train_iou',
                  self.train_iou,
                  on_step=True,
@@ -78,7 +81,9 @@ class Segmenter(LightningModule):
 
         y_hat = self(x)
 
+        torch.use_deterministic_algorithms(False)
         self.valid_iou(torch.round(y_hat).int(), torch.round(y).int())
+        torch.use_deterministic_algorithms(True)
         self.log('valid_iou',
                  self.valid_iou,
                  on_step=False,
@@ -92,7 +97,9 @@ class Segmenter(LightningModule):
         x, y = batch
         y_hat = self(x)
 
+        torch.use_deterministic_algorithms(False)
         self.test_iou(torch.round(y_hat).int(), torch.round(y).int())
+        torch.use_deterministic_algorithms(True)
         self.log('test_iou',
                  self.test_iou,
                  on_step=False,

@@ -91,7 +91,7 @@ class CompressedNpzDataset(datasets.VisionDataset):
         img = A.ToFloat(always_apply=True)(image=img)["image"]
         img = ToTensorV2(always_apply=True)(image=img)["image"]
 
-        target = torch.from_numpy(target).to(img.dtype)
+        target = torch.from_numpy(target).to(img.dtype).moveaxis(2, 0)
 
         return img, target
 

@@ -1,4 +1,3 @@
-from turtle import xcor
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from matplotlib import pyplot as plt
 import torch
