@@ -2,13 +2,13 @@ import torch
 from pytorch_lightning import LightningModule
 from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint, GPUStatsMonitor
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
-import monai
+import segmentation_models_pytorch as smp
 import torchmetrics
 from pytorch_lightning.utilities.cli import MODEL_REGISTRY
 
 
 @MODEL_REGISTRY
-class Classifier(LightningModule):
+class Segmenter(LightningModule):
 
     def __init__(
         self,
@@ -23,14 +23,16 @@ class Classifier(LightningModule):
         self.save_hyperparameters()
 
         self.model = torch.nn.Sequential(
+            torch.nn.InstanceNorm2d(self.hparams.in_channels,
+                                    track_running_stats=True),
             torch.nn.Conv2d(self.hparams.in_channels, 3, (1, 1)),
             torch.nn.InstanceNorm2d(3), self.get_model(), torch.nn.Sigmoid())
 
         self.loss = torch.nn.BCELoss()
 
-        self.train_acc = torchmetrics.Accuracy()
-        self.valid_acc = torchmetrics.Accuracy()
-        self.test_acc = torchmetrics.Accuracy()
+        self.train_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
+        self.valid_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
+        self.test_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
 
     def configure_callbacks(self):
         callbacks = [
@@ -52,19 +54,16 @@ class Classifier(LightningModule):
         return callbacks
 
     def get_model(self):
-        return monai.networks.nets.EfficientNetBN(
-            "efficientnet-b0",
-            spatial_dims=2,
-            pretrained=True,
-            num_classes=self.hparams.num_classes)
+        return smp.DeepLabV3Plus(encoder_name='efficientnet-b0',
+                                 encoder_weights="imagenet")
 
     def training_step(self, batch, _batch_idx):
         x, y = batch
         y_hat = self(x)
 
-        self.train_acc(torch.round(y_hat).int(), torch.round(y).int())
-        self.log('train_acc_step',
-                 self.train_acc,
+        self.train_iou(torch.round(y_hat).int(), torch.round(y).int())
+        self.log('train_iou',
+                 self.train_iou,
                  on_step=True,
                  on_epoch=False,
                  prog_bar=True)
@@ -76,11 +75,12 @@ class Classifier(LightningModule):
 
     def validation_step(self, batch, _batch_idx):
         x, y = batch
+
         y_hat = self(x)
 
-        self.valid_acc(torch.round(y_hat).int(), torch.round(y).int())
-        self.log('valid_acc',
-                 self.valid_acc,
+        self.valid_iou(torch.round(y_hat).int(), torch.round(y).int())
+        self.log('valid_iou',
+                 self.valid_iou,
                  on_step=False,
                  on_epoch=True,
                  prog_bar=True)
@@ -92,9 +92,9 @@ class Classifier(LightningModule):
         x, y = batch
         y_hat = self(x)
 
-        self.test_acc(torch.round(y_hat).int(), torch.round(y).int())
-        self.log('test_acc',
-                 self.test_acc,
+        self.test_iou(torch.round(y_hat).int(), torch.round(y).int())
+        self.log('test_iou',
+                 self.test_iou,
                  on_step=False,
                  on_epoch=True,
                  prog_bar=True)

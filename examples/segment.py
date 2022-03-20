@@ -1,5 +1,5 @@
 import lightningdata  # noqa: F401
-from Model import Classifier
+from Segmenter import Segmenter
 import sys
 from pytorch_lightning.utilities.cli import LightningCLI
 
@@ -16,10 +16,11 @@ class MyLightningCLI(LightningCLI):
 
 
 if __name__ == "__main__":
-    cli = MyLightningCLI(Classifier,
+    cli = MyLightningCLI(Segmenter,
                          seed_everything_default=42,
                          trainer_defaults={
                              "gpus": -1,
                              "deterministic": True,
-                             "max_epochs": sys.maxsize
+                             "max_epochs": sys.maxsize,
+                             "stochastic_weight_avg": True
                          })

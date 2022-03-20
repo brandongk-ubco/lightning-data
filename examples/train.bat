@@ -1,1 +1,0 @@
-python %0\..\example.py fit --data=%1 --data.num_workers 1 --data.batch_size 128 --data.augment_policy_path "lightningdata/policies/%1.yaml"

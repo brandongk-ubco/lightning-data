@@ -12,8 +12,6 @@ class VisionDataModule(LightningDataModule):
                  train_augment_policy: str = None,
                  batch_size: int = 4,
                  dataset_split_seed: int = 42,
-                 patch_height: int = 512,
-                 patch_width=512,
                  data_dir=None,
                  *args,
                  **kwargs):
@@ -33,8 +31,6 @@ class VisionDataModule(LightningDataModule):
         self.num_workers = int(num_workers)
         self.batch_size = batch_size
         self.dataset_split_seed = dataset_split_seed
-        self.patch_height = patch_height
-        self.patch_width = patch_width
         self.train_augment_policy = train_augment_policy
 
     def get_augments(self):

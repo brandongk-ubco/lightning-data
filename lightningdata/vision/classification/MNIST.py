@@ -75,9 +75,7 @@ class MNistDataSet(datasets.MNIST):
         expected_shape = img.shape
 
         if self.transform is not None:
-            # img = np.repeat(img[..., np.newaxis], 3, axis=-1)
             img = self.transform(img)["image"]
-            # img = img[:, :, 0]
 
         if self.patch_transform is not None and expected_shape != img.shape:
             img = self.patch_transform(image=img)["image"]

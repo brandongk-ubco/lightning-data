@@ -1,3 +1,4 @@
+from turtle import xcor
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from matplotlib import pyplot as plt
 import torch
@@ -5,8 +6,8 @@ import torch
 
 def visualize(data: str,
               augment_policy_path: str = None,
-              rows=10,
-              columns=10,
+              rows=None,
+              columns=None,
               examples=1):
 
     Dataset = DATAMODULE_REGISTRY[data]
@@ -16,6 +17,13 @@ def visualize(data: str,
                       batch_size=1)
     dataloader = dataset.train_dataloader()
     dataiter = iter(dataloader)
+
+    if rows is None or columns is None:
+        img, _ = next(dataiter)
+        max_width = 1920
+        max_height = 1080
+        columns = max_width // img.shape[-2]
+        rows = max_height // img.shape[-1]
 
     shown = 0
     num_figs = rows * columns
@@ -30,15 +38,17 @@ def visualize(data: str,
 
         x, _ = sample
 
+        x = torch.squeeze(x)
+
         fig.add_subplot(rows, columns, idx + 1)
-        img = torch.squeeze(x[0, :, :, :])
-        if img.dim() == 2:
-            plt.imshow(img, cmap="gray")
-        elif img.dim() == 3:
-            plt.imshow(img.moveaxis(0, -1))
+
+        if x.dim() == 2:
+            plt.imshow(x, cmap="gray")
+        elif x.dim() == 3:
+            plt.imshow(x.moveaxis(0, -1))
         else:
             raise ValueError(
-                f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {img.dim()}"
+                f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {x.dim()}"
             )
         plt.axis('off')
 
