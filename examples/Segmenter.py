@@ -28,7 +28,9 @@ class Segmenter(LightningModule):
             torch.nn.Conv2d(self.hparams.in_channels, 3, (1, 1)),
             torch.nn.InstanceNorm2d(3), self.get_model(), torch.nn.Sigmoid())
 
-        self.loss = torch.nn.BCELoss()
+        self.loss = lambda y_hat, y: torch.nn.BCELoss()(
+            y_hat, y) + smp.losses.TverskyLoss(mode=smp.losses.constants.
+                                               MULTILABEL_MODE)(y_hat, y)
 
         self.train_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
         self.valid_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
