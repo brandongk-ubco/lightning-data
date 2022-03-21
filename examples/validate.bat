@@ -1,0 +1,1 @@
+python -m lightningdata validate %1 --augment-policy-path "lightningdata/policies/%1.yaml"

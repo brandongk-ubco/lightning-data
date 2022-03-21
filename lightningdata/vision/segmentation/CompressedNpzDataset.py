@@ -58,7 +58,7 @@ class CompressedNpzDataset(datasets.VisionDataset):
         elif split == "val":
             self.data = self.data[train_count:train_count + val_count]
         elif split == "test":
-            self.data = self.data[:train_count + val_count:train_count +
+            self.data = self.data[train_count + val_count:train_count +
                                   val_count + test_count]
         else:
             raise ValueError("Split must be train, val, or test.")

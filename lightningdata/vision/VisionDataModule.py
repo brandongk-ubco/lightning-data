@@ -48,7 +48,7 @@ class VisionDataModule(LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(self.val_dataset,
-                          batch_size=2,
+                          batch_size=1,
                           num_workers=self.num_workers,
                           shuffle=False,
                           drop_last=False,
