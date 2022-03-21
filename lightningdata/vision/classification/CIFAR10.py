@@ -97,6 +97,7 @@ class CIFAR10(VisionDataModule):
         super().__init__(*args, **kwargs)
 
         self.in_channels = 3
+        self.task = "classification"
 
         if augment_policy_path is not None:
             augment_policy_path = os.path.abspath(augment_policy_path)

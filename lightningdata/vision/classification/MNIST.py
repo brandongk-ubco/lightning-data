@@ -26,6 +26,8 @@ class MNistDataSet(datasets.MNIST):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
+        self.task = "classification"
+
         assert split in ["train", "val", "test"]
 
         self.logger.info(f"Loading {split} split from {root}")

@@ -1,6 +1,6 @@
 import torch
 from pytorch_lightning import LightningModule
-from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint, GPUStatsMonitor
+from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint, DeviceStatsMonitor
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 import monai
 import torchmetrics
@@ -48,7 +48,7 @@ class Classifier(LightningModule):
         ]
 
         try:
-            callbacks.append(GPUStatsMonitor())
+            callbacks.append(DeviceStatsMonitor())
         except MisconfigurationException:
             pass
         return callbacks
@@ -65,7 +65,7 @@ class Classifier(LightningModule):
         y_hat = self(x)
 
         self.train_acc(torch.round(y_hat).int(), torch.round(y).int())
-        self.log('train_acc_step',
+        self.log('train_acc',
                  self.train_acc,
                  on_step=True,
                  on_epoch=False,

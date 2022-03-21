@@ -1,6 +1,6 @@
 import torch
 from pytorch_lightning import LightningModule
-from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint, GPUStatsMonitor
+from pytorch_lightning.callbacks import LearningRateMonitor, EarlyStopping, ModelCheckpoint, DeviceStatsMonitor
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 import segmentation_models_pytorch as smp
 import torchmetrics
@@ -50,7 +50,7 @@ class Segmenter(LightningModule):
         ]
 
         try:
-            callbacks.append(GPUStatsMonitor())
+            callbacks.append(DeviceStatsMonitor())
         except MisconfigurationException:
             pass
         return callbacks

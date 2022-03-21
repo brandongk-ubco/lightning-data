@@ -30,3 +30,12 @@ def validate(data: str, augment_policy_path: str = None):
             assert y.shape[1] == dataset.num_classes
             assert x[0, 0, :, :].min() >= 0.
             assert x[0, 0, :, :].max() <= 1.
+            if dataset.task == "classification":
+                assert y.dim() == 2
+            elif dataset.task == "segmentation":
+                assert y.dim() == 4
+                assert x.shape[-2:] == y.shape[-2:]
+            else:
+                raise ValueError(
+                    "Expected dataset task to be either classification or segmentation"
+                )

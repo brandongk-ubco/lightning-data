@@ -24,6 +24,8 @@ class Severstal(VisionDataModule):
         kwargs["name"] = "severstal"
         super().__init__(*args, **kwargs)
 
+        self.task = "segmentation"
+
         if augment_policy_path is not None:
             augment_policy_path = os.path.abspath(augment_policy_path)
             assert os.path.exists(augment_policy_path)
