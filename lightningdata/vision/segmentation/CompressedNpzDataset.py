@@ -28,7 +28,7 @@ class CompressedNpzDataset(datasets.VisionDataset):
 
         self.split = split
 
-        assert split in ["train", "val", "test"]
+        assert split in ["all", "train", "val", "test"]
 
         if transform is not None:
             transform = partial(albumentations_transform, transform=transform)
@@ -61,55 +61,59 @@ class CompressedNpzDataset(datasets.VisionDataset):
         elif split == "test":
             self.data = self.data[train_count + val_count:train_count +
                                   val_count + test_count]
-        else:
-            raise ValueError("Split must be train, val, or test.")
 
     def __getitem__(self, idx):
         image_name = self.data[idx]
         image_file = os.path.join(self.root, "{}.npz".format(image_name))
         image_np = np.load(image_file)
 
-        img = image_np["image"]
+        image = image_np["image"]
         target = image_np["mask"]
+
+        if self.split == "train":
+            image, target = self.augment(image, target)
 
         assert target.sum() > 0
 
-        if img.ndim == 2:
-            img = np.expand_dims(img, 2)
+        image = A.ToFloat(always_apply=True)(image=image)["image"]
+        image = ToTensorV2(always_apply=True)(image=image)["image"]
+
+        target = torch.from_numpy(target).to(image.dtype).moveaxis(2, 0)
+
+        return image, target
+
+    def augment(self, image, target):
+        if image.ndim == 2:
+            image = np.expand_dims(image, 2)
 
         row_start, row_end, col_start, col_end = crop_image_only_outside(
-            img, tol=0.2)
-        img = img[row_start:row_end, col_start:col_end, :]
+            image, tol=0.2)
+        image = image[row_start:row_end, col_start:col_end, :]
         target = target[row_start:row_end, col_start:col_end, :]
 
-        img = img.squeeze()
+        image = image.squeeze()
 
         if self.patch_transform is not None:
             while True:
-                transformed = self.patch_transform(image=img, mask=target)
+                transformed = self.patch_transform(image=image, mask=target)
                 if transformed["mask"].sum() > 0:
                     break
-            img = transformed["image"]
+            image = transformed["image"]
             target = transformed["mask"]
 
-        expected_shape = img.shape
+        expected_shape = image.shape
 
         if self.transform is not None:
-            transformed = self.transform(image=img, mask=target)
-            img = transformed["image"]
+            transformed = self.transform(image=image, mask=target)
+            image = transformed["image"]
             target = transformed["mask"]
 
-        if self.patch_transform is not None and expected_shape != img.shape:
-            transformed = self.patch_transform(image=img, mask=target)
-            img = transformed["image"]
+        if self.patch_transform is not None and expected_shape != image.shape:
+            transformed = self.patch_transform(image=image, mask=target)
+            image = transformed["image"]
             target = transformed["mask"]
 
-        img = A.ToFloat(always_apply=True)(image=img)["image"]
-        img = ToTensorV2(always_apply=True)(image=img)["image"]
-
-        target = torch.from_numpy(target).to(img.dtype).moveaxis(2, 0)
-
-        return img, target
+        return image, target
 
     def __len__(self):
         return len(self.data)

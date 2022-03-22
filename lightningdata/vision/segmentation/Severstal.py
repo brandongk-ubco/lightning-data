@@ -50,6 +50,10 @@ class Severstal(VisionDataModule):
                                              split="test",
                                              seed=self.seed)
 
+        self.all_dataset = SeverstalDataset(root=self.data_dir,
+                                            split="all",
+                                            seed=self.seed)
+
     @property
     def in_channels(self):
         return self.train_dataset.in_channels
@@ -73,3 +77,7 @@ class Severstal(VisionDataModule):
     @property
     def test_data(self):
         return self.test_dataset.data
+
+    @property
+    def all_data(self):
+        return self.all_dataset.data

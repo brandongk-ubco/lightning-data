@@ -61,3 +61,11 @@ class VisionDataModule(LightningDataModule):
                           shuffle=False,
                           drop_last=False,
                           pin_memory=True)
+
+    def all_dataloader(self):
+        return DataLoader(self.all_dataset,
+                          batch_size=1,
+                          num_workers=self.num_workers,
+                          shuffle=False,
+                          drop_last=False,
+                          pin_memory=True)
