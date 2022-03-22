@@ -7,6 +7,7 @@ from torchvision import datasets
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import torch
+from ...helpers import crop_image_only_outside
 
 
 def albumentations_transform(image, mask, transform):
@@ -71,8 +72,23 @@ class CompressedNpzDataset(datasets.VisionDataset):
         img = image_np["image"]
         target = image_np["mask"]
 
+        assert target.sum() > 0
+
+        if img.ndim == 2:
+            img = np.expand_dims(img, 2)
+
+        row_start, row_end, col_start, col_end = crop_image_only_outside(
+            img, tol=0.2)
+        img = img[row_start:row_end, col_start:col_end, :]
+        target = target[row_start:row_end, col_start:col_end, :]
+
+        img = img.squeeze()
+
         if self.patch_transform is not None:
-            transformed = self.patch_transform(image=img, mask=target)
+            while True:
+                transformed = self.patch_transform(image=img, mask=target)
+                if transformed["mask"].sum() > 0:
+                    break
             img = transformed["image"]
             target = transformed["mask"]
 

@@ -5,6 +5,9 @@ from pytorch_lightning.utilities.exceptions import MisconfigurationException
 import segmentation_models_pytorch as smp
 import torchmetrics
 from pytorch_lightning.utilities.cli import MODEL_REGISTRY
+from classwise import classwise
+from FocalLoss import FocalLoss
+from TverskyLoss import TverskyLoss
 
 
 @MODEL_REGISTRY
@@ -14,10 +17,12 @@ class Segmenter(LightningModule):
         self,
         num_classes: int,
         in_channels: int,
-        patience: int = 3,
+        patience: int = 5,
         learning_rate: float = 5e-3,
         min_learning_rate: float = 5e-4,
         weight_decay: float = 0.0,
+        focal_loss_multiplier: float = 1.0,
+        tversky_loss_multiplier: float = 1.0,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -28,13 +33,12 @@ class Segmenter(LightningModule):
             torch.nn.Conv2d(self.hparams.in_channels, 3, (1, 1)),
             torch.nn.InstanceNorm2d(3), self.get_model(), torch.nn.Sigmoid())
 
-        self.loss = lambda y_hat, y: torch.nn.BCELoss()(
-            y_hat, y) + smp.losses.TverskyLoss(mode=smp.losses.constants.
-                                               MULTILABEL_MODE)(y_hat, y)
-
-        self.train_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
-        self.valid_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
-        self.test_iou = torchmetrics.JaccardIndex(self.hparams.num_classes)
+        self.train_iou = torchmetrics.JaccardIndex(self.hparams.num_classes,
+                                                   absent_score=1.0)
+        self.valid_iou = torchmetrics.JaccardIndex(self.hparams.num_classes,
+                                                   absent_score=1.0)
+        self.test_iou = torchmetrics.JaccardIndex(self.hparams.num_classes,
+                                                  absent_score=1.0)
 
     def configure_callbacks(self):
         callbacks = [
@@ -54,6 +58,31 @@ class Segmenter(LightningModule):
         except MisconfigurationException:
             pass
         return callbacks
+
+    def loss(self, y_hat, y):
+        assert y_hat.shape == y.shape
+
+        focal_loss = classwise(
+            y_hat,
+            y,
+            metric=lambda y_hat, y: -1
+            if not y.max() > 0 else FocalLoss("binary", from_logits=False)
+            (y_hat, y))
+
+        focal_loss = self.hparams.focal_loss_multiplier * focal_loss[
+            focal_loss >= 0].mean()
+
+        tversky_loss = classwise(
+            y_hat,
+            y,
+            metric=lambda y_hat, y: -1
+            if not y.max() > 0 else TverskyLoss(from_logits=False)(y_hat, y))
+
+        tversky_loss = self.hparams.tversky_loss_multiplier * tversky_loss[
+            tversky_loss >= 0].mean()
+
+        loss = focal_loss + tversky_loss
+        return loss
 
     def get_model(self):
         return smp.Unet(encoder_name='efficientnet-b0',

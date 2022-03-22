@@ -9,6 +9,15 @@ transform:
       blur_limit:
         - 3
         - 5
+    - __class_fullname__: VerticalFlip
+      p: 0.5
+    - __class_fullname__: HorizontalFlip
+      p: 0.5
+    - __class_fullname__: ElasticTransform
+      p: 0.25
+      alpha: 120
+      sigma: 6
+      alpha_affine: 3.6
     - __class_fullname__: ShiftScaleRotate
       p: 0.5
       rotate_limit: 10
