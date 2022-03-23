@@ -15,11 +15,12 @@ transform:
       p: 0.5
     - __class_fullname__: ElasticTransform
       p: 0.25
-      alpha: 120
-      sigma: 4
+      alpha: 30
+      sigma: 3
       alpha_affine: 2
     - __class_fullname__: ShiftScaleRotate
       p: 0.5
+      shift_limit: 0
       scale_limit: 0.2
       rotate_limit: 10
       border_mode: 0

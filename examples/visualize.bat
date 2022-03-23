@@ -1,1 +1,1 @@
-python -m lightningdata visualize %1 --augment-policy-path "lightningdata/policies/%1.yaml"
+python -m lightningdata visualize %1 --split %2 --augment-policy-path "lightningdata/policies/%1.yaml"

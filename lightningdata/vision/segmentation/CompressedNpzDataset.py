@@ -93,25 +93,31 @@ class CompressedNpzDataset(datasets.VisionDataset):
 
         image = image.squeeze()
 
-        if self.patch_transform is not None:
-            while True:
-                transformed = self.patch_transform(image=image, mask=target)
-                if transformed["mask"].sum() > 0:
-                    break
-            image = transformed["image"]
-            target = transformed["mask"]
+        while True:
+            if self.patch_transform is not None:
+                while True:
+                    transformed = self.patch_transform(image=image, mask=target)
+                    x = transformed["image"]
+                    y = transformed["mask"]
+                    if y.sum() > 0:
+                        break
 
-        expected_shape = image.shape
+            expected_shape = x.shape
 
-        if self.transform is not None:
-            transformed = self.transform(image=image, mask=target)
-            image = transformed["image"]
-            target = transformed["mask"]
+            if self.transform is not None:
+                transformed = self.transform(image=x, mask=y)
+                x = transformed["image"]
+                y = transformed["mask"]
 
-        if self.patch_transform is not None and expected_shape != image.shape:
-            transformed = self.patch_transform(image=image, mask=target)
-            image = transformed["image"]
-            target = transformed["mask"]
+            if self.patch_transform is not None and expected_shape != image.shape:
+                transformed = self.patch_transform(image=x, mask=y)
+                x = transformed["image"]
+                y = transformed["mask"]
+
+            if y.sum() > 0:
+                image = x
+                target = y
+                break
 
         return image, target
 

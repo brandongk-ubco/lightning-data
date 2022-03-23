@@ -1,28 +1,44 @@
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from matplotlib import pyplot as plt
 import torch
+from argh import arg
+import pytorch_lightning
 
 
+@arg("--split", choices=["train", "val", "test", "all"])
 def visualize(data: str,
+              split: str = "train",
               augment_policy_path: str = None,
               rows=None,
               columns=None,
-              examples=1):
+              examples=1,
+              seed=42):
+
+    pytorch_lightning.seed_everything(seed)
 
     Dataset = DATAMODULE_REGISTRY[data]
 
     dataset = Dataset(augment_policy_path=augment_policy_path,
                       num_workers=0,
                       batch_size=1)
-    dataloader = dataset.train_dataloader()
+
+    if split == "train":
+        dataloader = dataset.train_dataloader()
+    elif split == "val":
+        dataloader = dataset.val_dataloader()
+    elif split == "test":
+        dataloader = dataset.test_dataloader()
+    elif split == "all":
+        dataloader = dataset.all_dataloader()
+
     dataiter = iter(dataloader)
 
     if rows is None or columns is None:
         img, _ = next(dataiter)
         max_width = 1920
         max_height = 1080
-        columns = max_width // img.shape[-2]
-        rows = max_height // img.shape[-1]
+        columns = max(max_width // img.shape[-1], 1)
+        rows = max(max_height // img.shape[-2], 1)
 
     shown = 0
     num_figs = rows * columns
