@@ -26,20 +26,10 @@ class Severstal(VisionDataModule):
 
         self.task = "segmentation"
 
-        if augment_policy_path is not None:
-            augment_policy_path = os.path.abspath(augment_policy_path)
-            assert os.path.exists(augment_policy_path)
-            augment_data_format = augment_policy_path[-4:]
-            assert augment_data_format in ["yaml", "json"]
-            augments = A.load(augment_policy_path,
-                              data_format=augment_data_format)
-        else:
-            augments = None
-
         self.seed = seed
         self.train_dataset = SeverstalDataset(root=self.data_dir,
                                               split="train",
-                                              transform=augments,
+                                              transform=self.augments,
                                               seed=self.seed)
 
         self.val_dataset = SeverstalDataset(root=self.data_dir,

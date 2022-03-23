@@ -9,7 +9,7 @@ class VisionDataModule(LightningDataModule):
     def __init__(self,
                  name: str = None,
                  num_workers: int = int(os.environ.get("NUM_WORKERS", 0)),
-                 train_augment_policy: str = None,
+                 augment_policy_path: str = None,
                  batch_size: int = 4,
                  dataset_split_seed: int = 42,
                  data_dir=None,
@@ -27,16 +27,25 @@ class VisionDataModule(LightningDataModule):
                 "Must set data_dir, either through command line or DATA_DIR environment variable"
             )
         self.data_dir = os.path.join(os.path.abspath(data_dir), self.name)
+
+        import pdb
+        pdb.set_trace()
+
+        if augment_policy_path is None:
+            augment_policy_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "policies",
+                f"{self.name}.yaml")
+
+        assert os.path.exists(augment_policy_path)
+        augment_data_format = augment_policy_path[-4:]
+        assert augment_data_format in ["yaml", "json"]
+        self.augments = A.load(augment_policy_path,
+                               data_format=augment_data_format)
+
         os.makedirs(self.data_dir, exist_ok=True)
         self.num_workers = int(num_workers)
         self.batch_size = batch_size
         self.dataset_split_seed = dataset_split_seed
-        self.train_augment_policy = train_augment_policy
-
-    def get_augments(self):
-        data_format = self.train_augment_policy[:-4]
-        assert data_format in ["json", "yaml"]
-        return A.load(self.train_augment_policy, data_format=data_format)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset,
