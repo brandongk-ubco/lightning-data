@@ -5,4 +5,4 @@ torchvision
 albumentations
 argh
 matplotlib
-git+https://github.com/qubvel/segmentation_models.pytorch
+segmentation_models_pytorch@https://github.com/qubvel/segmentation_models.pytorch/archive/refs/heads/master.zip

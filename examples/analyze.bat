@@ -1,1 +1,0 @@
-python -m lightningdata analyze %1

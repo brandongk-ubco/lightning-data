@@ -8,6 +8,8 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 
+__all__ = ["CIFAR10"]
+
 
 def albumentations_transform(image, transform):
     return transform(image=image)
