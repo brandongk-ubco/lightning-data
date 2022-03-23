@@ -70,6 +70,8 @@ class CompressedNpzDataset(datasets.VisionDataset):
         image = image_np["image"]
         target = image_np["mask"]
 
+        target = target.astype(image.dtype)
+
         if self.split == "train":
             image, target = self.augment(image, target)
 

@@ -1,3 +1,4 @@
 from .Severstal import Severstal
+from .CityScapes import CityScapes
 
-__all__ = [Severstal]
+__all__ = [Severstal, CityScapes]
