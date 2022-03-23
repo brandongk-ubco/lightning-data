@@ -28,9 +28,6 @@ class VisionDataModule(LightningDataModule):
             )
         self.data_dir = os.path.join(os.path.abspath(data_dir), self.name)
 
-        import pdb
-        pdb.set_trace()
-
         if augment_policy_path is None:
             augment_policy_path = os.path.join(
                 os.path.dirname(os.path.abspath(__file__)), "policies",
