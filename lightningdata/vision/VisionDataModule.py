@@ -29,9 +29,14 @@ class VisionDataModule(LightningDataModule):
         self.data_dir = os.path.join(os.path.abspath(data_dir), self.name)
 
         if augment_policy_path is None:
-            augment_policy_path = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)), "policies",
-                f"{self.name}.yaml")
+            override_file = os.path.join(os.getcwd(), "Augments.yaml")
+
+            if os.path.exists(override_file):
+                augment_policy_path = override_file
+            else:
+                augment_policy_path = os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)), "policies",
+                    f"{self.name}.yaml")
 
         assert os.path.exists(augment_policy_path)
         augment_data_format = augment_policy_path[-4:]
