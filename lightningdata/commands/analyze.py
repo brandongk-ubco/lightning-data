@@ -10,7 +10,7 @@ from scipy.ndimage.measurements import label
 import numpy as np
 
 
-def collect_stats(dataset, augment_policy_path: str = None,):
+def collect_stats(dataset):
     dataloader = dataset.all_dataloader()
     dataiter = iter(dataloader)
     rows = []
@@ -42,11 +42,11 @@ def collect_stats(dataset, augment_policy_path: str = None,):
     return df
 
 
-def analyze(data: str, overwrite=False):
+def analyze(data: str, overwrite=False, augment_policy_path: str = None):
 
     Dataset = DATAMODULE_REGISTRY[data]
 
-    dataset = Dataset(num_workers=0, batch_size=1)
+    dataset = Dataset(num_workers=0, batch_size=1, augment_policy_path=augment_policy_path)
 
     stats_file = os.path.join(dataset.data_dir, "stats.csv")
     if not os.path.exists(stats_file) or overwrite:
