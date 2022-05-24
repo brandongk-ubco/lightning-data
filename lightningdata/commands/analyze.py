@@ -10,7 +10,7 @@ from scipy.ndimage.measurements import label
 import numpy as np
 
 
-def collect_stats(dataset):
+def collect_stats(dataset, augment_policy_path: str = None,):
     dataloader = dataset.all_dataloader()
     dataiter = iter(dataloader)
     rows = []
