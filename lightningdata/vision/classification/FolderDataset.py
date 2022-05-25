@@ -9,17 +9,20 @@ from albumentations.pytorch import ToTensorV2
 import torch
 import PIL
 
+
 def albumentations_transform(image, transform):
     return transform(image=image)
 
+
 class FolderDataset(datasets.VisionDataset):
+
     def __init__(self,
                  root,
                  transform=None,
                  val_percentage=0.10,
                  test_percentage=0.10,
                  split="train",
-                 extensions=["tiff", "tif"],
+                 extensions=["tiff", "tif", "jpg", "jpeg", "gif", "png"],
                  patch_height=32,
                  patch_width=32,
                  seed=42):
@@ -49,7 +52,8 @@ class FolderDataset(datasets.VisionDataset):
             files = glob.glob(file_search)
             self.data += files
 
-        self.classes = list(set([os.path.split(os.path.dirname(f))[-1] for f in files]))
+        self.classes = list(
+            set([os.path.split(os.path.dirname(f))[-1] for f in files]))
 
         random.Random(seed).shuffle(self.data)
 
