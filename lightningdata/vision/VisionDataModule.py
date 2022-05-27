@@ -80,3 +80,43 @@ class VisionDataModule(LightningDataModule):
                           shuffle=False,
                           drop_last=False,
                           pin_memory=True)
+
+    @property
+    def in_channels(self):
+        return self.train_dataset.in_channels
+
+    @property
+    def num_classes(self):
+        return len(self.train_dataset.classes)
+
+    @property
+    def classes(self):
+        return self.train_dataset.classes
+
+    @property
+    def train_data(self):
+        return self.train_dataset.data
+
+    @property
+    def val_data(self):
+        return self.val_dataset.data
+
+    @property
+    def test_data(self):
+        return self.test_dataset.data
+
+    @property
+    def all_data(self):
+        return self.all_dataset.data
+
+    @property
+    def train_targets(self):
+        return self.train_dataset.targets
+
+    @property
+    def val_targets(self):
+        return self.val_dataset.targets
+
+    @property
+    def test_targets(self):
+        return self.test_dataset.targets

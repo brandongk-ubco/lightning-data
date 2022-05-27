@@ -103,7 +103,7 @@ class MNistDataSet(datasets.MNIST):
 @DATAMODULE_REGISTRY
 class MNist(VisionDataModule):
 
-    def __init__(self, seed=42, augment_policy_path=None, *args, **kwargs):
+    def __init__(self, seed=42, *args, **kwargs):
         kwargs["name"] = "mnist"
         super().__init__(*args, **kwargs)
 
@@ -122,35 +122,3 @@ class MNist(VisionDataModule):
         self.test_dataset = MNistDataSet(root=self.data_dir,
                                          split="test",
                                          seed=self.seed)
-
-    @property
-    def num_classes(self):
-        return len(self.train_dataset.classes)
-
-    @property
-    def classes(self):
-        return self.train_dataset.classes
-
-    @property
-    def train_data(self):
-        return self.train_dataset.data
-
-    @property
-    def val_data(self):
-        return self.val_dataset.data
-
-    @property
-    def test_data(self):
-        return self.test_dataset.data
-
-    @property
-    def train_targets(self):
-        return self.train_dataset.targets
-
-    @property
-    def val_targets(self):
-        return self.val_dataset.targets
-
-    @property
-    def test_targets(self):
-        return self.test_dataset.targets

@@ -28,7 +28,7 @@ class CIFAR10DataSet(datasets.CIFAR10):
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
-        assert split in ["train", "val", "test"]
+        assert split in ["train", "val", "test", "all"]
 
         self.logger.info(f"Loading {split} from {root}")
 
@@ -46,7 +46,6 @@ class CIFAR10DataSet(datasets.CIFAR10):
         ])
 
         self.targets = torch.LongTensor(self.targets)
-
         if split in ["train", "val"]:
             val_count = int(len(self.data) * val_percentage)
             g = torch.Generator()
@@ -94,17 +93,17 @@ class CIFAR10DataSet(datasets.CIFAR10):
 @DATAMODULE_REGISTRY
 class CIFAR10(VisionDataModule):
 
-    def __init__(self, seed=42, augment_policy_path=None, *args, **kwargs):
+    task = "classification"
+
+    def __init__(self, seed=42, *args, **kwargs):
         kwargs["name"] = "cifar10"
         super().__init__(*args, **kwargs)
 
-        self.in_channels = 3
-        self.task = "classification"
-
         self.seed = seed
+
         self.train_dataset = CIFAR10DataSet(root=self.data_dir,
                                             split="train",
-                                            transform=augments,
+                                            transform=self.augments,
                                             seed=self.seed)
 
         self.val_dataset = CIFAR10DataSet(root=self.data_dir,
@@ -115,34 +114,6 @@ class CIFAR10(VisionDataModule):
                                            split="test",
                                            seed=self.seed)
 
-    @property
-    def num_classes(self):
-        return len(self.train_dataset.classes)
-
-    @property
-    def classes(self):
-        return self.train_dataset.classes
-
-    @property
-    def train_data(self):
-        return self.train_dataset.data
-
-    @property
-    def val_data(self):
-        return self.val_dataset.data
-
-    @property
-    def test_data(self):
-        return self.test_dataset.data
-
-    @property
-    def train_targets(self):
-        return self.train_dataset.targets
-
-    @property
-    def val_targets(self):
-        return self.val_dataset.targets
-
-    @property
-    def test_targets(self):
-        return self.test_dataset.targets
+        self.all_dataset = CIFAR10DataSet(root=self.data_dir,
+                                          split="all",
+                                          seed=self.seed)
