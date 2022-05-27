@@ -1,8 +1,6 @@
 from .CompressedNpzDataset import CompressedNpzDataset
 from ..VisionDataModule import VisionDataModule
-import os
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
-import albumentations as A
 
 
 class SeverstalDataset(CompressedNpzDataset):
@@ -20,26 +18,4 @@ class SeverstalDataset(CompressedNpzDataset):
 @DATAMODULE_REGISTRY
 class Severstal(VisionDataModule):
 
-    task = "segmentation"
-
-    def __init__(self, seed=42, *args, **kwargs):
-        kwargs["name"] = "severstal"
-        super().__init__(*args, **kwargs)
-
-        self.seed = seed
-        self.train_dataset = SeverstalDataset(root=self.data_dir,
-                                              split="train",
-                                              transform=self.augments,
-                                              seed=self.seed)
-
-        self.val_dataset = SeverstalDataset(root=self.data_dir,
-                                            split="val",
-                                            seed=self.seed)
-
-        self.test_dataset = SeverstalDataset(root=self.data_dir,
-                                             split="test",
-                                             seed=self.seed)
-
-        self.all_dataset = SeverstalDataset(root=self.data_dir,
-                                            split="all",
-                                            seed=self.seed)
+    Dataset = SeverstalDataset

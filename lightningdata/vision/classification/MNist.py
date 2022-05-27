@@ -103,22 +103,4 @@ class MNistDataSet(datasets.MNIST):
 @DATAMODULE_REGISTRY
 class MNist(VisionDataModule):
 
-    def __init__(self, seed=42, *args, **kwargs):
-        kwargs["name"] = "mnist"
-        super().__init__(*args, **kwargs)
-
-        self.in_channels = 1
-
-        self.seed = seed
-        self.train_dataset = MNistDataSet(root=self.data_dir,
-                                          split="train",
-                                          transform=self.augments,
-                                          seed=self.seed)
-
-        self.val_dataset = MNistDataSet(root=self.data_dir,
-                                        split="val",
-                                        seed=self.seed)
-
-        self.test_dataset = MNistDataSet(root=self.data_dir,
-                                         split="test",
-                                         seed=self.seed)
+    Dataset = MNistDataSet

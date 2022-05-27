@@ -42,13 +42,7 @@ def collect_stats(dataset):
     return df
 
 
-def analyze_segmentation(data: str, overwrite=False, augment_policy_path: str = None):
-
-    Dataset = DATAMODULE_REGISTRY[data]
-
-    dataset = Dataset(num_workers=0,
-                      batch_size=1,
-                      augment_policy_path=augment_policy_path)
+def analyze_segmentation(dataset, overwrite=False):
 
     stats_file = os.path.join(dataset.data_dir, "stats.csv")
     if not os.path.exists(stats_file) or overwrite:

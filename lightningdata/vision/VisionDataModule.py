@@ -7,17 +7,24 @@ import albumentations as A
 class VisionDataModule(LightningDataModule):
 
     def __init__(self,
-                 name: str = None,
                  num_workers: int = int(os.environ.get("NUM_WORKERS", 0)),
                  augment_policy_path: str = None,
                  batch_size: int = 4,
-                 dataset_split_seed: int = 42,
+                 seed: int = 42,
                  data_dir=None,
                  *args,
                  **kwargs):
+
+        details = self.__class__.__module__.split(".")
+
+        if not hasattr(self, 'category'):
+            self.category = details[1]
+        if not hasattr(self, 'task'):
+            self.task = details[2]
+        if not hasattr(self, 'dataset_name'):
+            self.dataset_name = details[3]
+
         super().__init__(*args, **kwargs)
-        assert name is not None
-        self.name = name
 
         if not data_dir:
             data_dir = os.environ.get("OVERRIDE_DATA_DIR",
@@ -26,7 +33,8 @@ class VisionDataModule(LightningDataModule):
             raise ValueError(
                 "Must set data_dir, either through command line or DATA_DIR environment variable"
             )
-        self.data_dir = os.path.join(os.path.abspath(data_dir), self.name)
+        self.data_dir = os.path.join(os.path.abspath(data_dir),
+                                     self.dataset_name)
 
         if augment_policy_path is None:
             override_file = os.path.join(os.getcwd(), "Augments.yaml")
@@ -36,7 +44,7 @@ class VisionDataModule(LightningDataModule):
             else:
                 augment_policy_path = os.path.join(
                     os.path.dirname(os.path.abspath(__file__)), "policies",
-                    f"{self.name}.yaml")
+                    f"{self.dataset_name}.yaml")
 
         assert os.path.exists(augment_policy_path)
         augment_data_format = augment_policy_path[-4:]
@@ -47,28 +55,63 @@ class VisionDataModule(LightningDataModule):
         os.makedirs(self.data_dir, exist_ok=True)
         self.num_workers = int(num_workers)
         self.batch_size = batch_size
-        self.dataset_split_seed = dataset_split_seed
+        self.seed = seed
+        self.dataset_split_seed = self.seed
+
+        self.train_dataset = self.Dataset(root=self.data_dir,
+                                          split="train",
+                                          transform=self.augments,
+                                          seed=self.seed)
+
+        self.val_dataset = self.Dataset(root=self.data_dir,
+                                        split="val",
+                                        seed=self.seed)
+
+        self.test_dataset = self.Dataset(root=self.data_dir,
+                                         split="test",
+                                         seed=self.seed)
+
+        self.predict_dataset = self.Dataset(root=self.data_dir,
+                                            split="test",
+                                            seed=self.seed)
+
+        self.all_dataset = self.Dataset(root=self.data_dir,
+                                        split="all",
+                                        seed=self.seed)
 
     def train_dataloader(self):
         return DataLoader(self.train_dataset,
                           batch_size=self.batch_size,
                           num_workers=self.num_workers,
+                          persistent_workers=self.num_workers > 0,
                           shuffle=True,
                           drop_last=True,
                           pin_memory=True)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset,
-                          batch_size=1,
-                          num_workers=self.num_workers,
-                          shuffle=False,
-                          drop_last=False,
-                          pin_memory=True)
+        return DataLoader(
+            self.val_dataset,
+            batch_size=1 if self.task == "segmentation" else self.batch_size,
+            num_workers=self.num_workers,
+            persistent_workers=self.num_workers > 0,
+            shuffle=False,
+            drop_last=False,
+            pin_memory=True)
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset,
                           batch_size=1,
                           num_workers=self.num_workers,
+                          persistent_workers=self.num_workers > 0,
+                          shuffle=False,
+                          drop_last=False,
+                          pin_memory=True)
+
+    def predict_dataloader(self):
+        return DataLoader(self.test_dataset,
+                          batch_size=1,
+                          num_workers=self.num_workers,
+                          persistent_workers=self.num_workers > 0,
                           shuffle=False,
                           drop_last=False,
                           pin_memory=True)
@@ -77,6 +120,7 @@ class VisionDataModule(LightningDataModule):
         return DataLoader(self.all_dataset,
                           batch_size=1,
                           num_workers=self.num_workers,
+                          persistent_workers=self.num_workers > 0,
                           shuffle=False,
                           drop_last=False,
                           pin_memory=True)

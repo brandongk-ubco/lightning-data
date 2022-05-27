@@ -30,26 +30,4 @@ class CityScapesDataset(CompressedNpzDataset):
 @DATAMODULE_REGISTRY
 class CityScapes(VisionDataModule):
 
-    task = "segmentation"
-
-    def __init__(self, seed=42, *args, **kwargs):
-        kwargs["name"] = "cityscapes"
-        super().__init__(*args, **kwargs)
-
-        self.seed = seed
-        self.train_dataset = CityScapesDataset(root=self.data_dir,
-                                               split="train",
-                                               transform=self.augments,
-                                               seed=self.seed)
-
-        self.val_dataset = CityScapesDataset(root=self.data_dir,
-                                             split="val",
-                                             seed=self.seed)
-
-        self.test_dataset = CityScapesDataset(root=self.data_dir,
-                                              split="test",
-                                              seed=self.seed)
-
-        self.all_dataset = CityScapesDataset(root=self.data_dir,
-                                             split="all",
-                                             seed=self.seed)
+    Dataset = CityScapesDataset

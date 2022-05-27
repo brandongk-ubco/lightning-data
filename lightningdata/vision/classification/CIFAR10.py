@@ -17,6 +17,8 @@ def albumentations_transform(image, transform):
 
 class CIFAR10DataSet(datasets.CIFAR10):
 
+    in_channels = 3
+
     def __init__(self,
                  root,
                  transform=None,
@@ -38,7 +40,7 @@ class CIFAR10DataSet(datasets.CIFAR10):
         super().__init__(root,
                          transform=transform,
                          train=split in ["train", "val"],
-                         download=True)
+                         download=split == "train")
 
         self.patch_transform = A.Compose([
             A.PadIfNeeded(min_height=32, min_width=32, always_apply=True),
@@ -93,27 +95,4 @@ class CIFAR10DataSet(datasets.CIFAR10):
 @DATAMODULE_REGISTRY
 class CIFAR10(VisionDataModule):
 
-    task = "classification"
-
-    def __init__(self, seed=42, *args, **kwargs):
-        kwargs["name"] = "cifar10"
-        super().__init__(*args, **kwargs)
-
-        self.seed = seed
-
-        self.train_dataset = CIFAR10DataSet(root=self.data_dir,
-                                            split="train",
-                                            transform=self.augments,
-                                            seed=self.seed)
-
-        self.val_dataset = CIFAR10DataSet(root=self.data_dir,
-                                          split="val",
-                                          seed=self.seed)
-
-        self.test_dataset = CIFAR10DataSet(root=self.data_dir,
-                                           split="test",
-                                           seed=self.seed)
-
-        self.all_dataset = CIFAR10DataSet(root=self.data_dir,
-                                          split="all",
-                                          seed=self.seed)
+    Dataset = CIFAR10DataSet
