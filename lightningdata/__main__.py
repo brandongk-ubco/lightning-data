@@ -11,10 +11,11 @@ parser = argh.ArghParser()
 parser.add_commands(command_list)
 
 if __name__ == '__main__':
-    datasets_file = os.path.join(os.getcwd(), "datasets.json")
-    if os.path.exists(datasets_file):
-        with open(datasets_file, "r") as jsonfile:
-            datasets = json.load(jsonfile)
-        for module in datasets:
-            importlib.import_module(module)
+    modules_file = os.path.join(os.getcwd(), "modules.json")
+    if os.path.exists(modules_file):
+        with open(modules_file, "r") as jsonfile:
+            modules = json.load(jsonfile)
+        if "datasets" in modules:
+            for module in modules["datasets"]:
+                importlib.import_module(module)
     parser.dispatch()
