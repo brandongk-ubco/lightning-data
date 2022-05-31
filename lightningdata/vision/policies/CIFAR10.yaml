@@ -4,11 +4,9 @@ transform:
   __class_fullname__: Compose
   p: 1
   transforms:
-    - __class_fullname__: MedianBlur
+    - __class_fullname__: Rotate
       p: 0.25
-      blur_limit:
-        - 1
-        - 1
+      limit: 10
   bbox_params:
   keypoint_params:
   additional_targets: {}

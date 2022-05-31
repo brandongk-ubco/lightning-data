@@ -3,6 +3,7 @@ from matplotlib import pyplot as plt
 import torch
 from argh import arg
 import pytorch_lightning
+import cv2
 
 
 @arg("--split", choices=["train", "val", "test", "all"])
@@ -11,6 +12,8 @@ def visualize(data: str,
               augment_policy_path: str = None,
               rows=None,
               columns=None,
+              min_img_width=128,
+              min_img_height=128,
               examples=1,
               seed=42):
 
@@ -32,13 +35,20 @@ def visualize(data: str,
         dataloader = dataset.all_dataloader()
 
     dataiter = iter(dataloader)
+    max_width = 1920
+    max_height = 1080
+    img, _ = next(dataiter)
 
-    if rows is None or columns is None:
-        img, _ = next(dataiter)
-        max_width = 1920
-        max_height = 1080
-        columns = max(max_width // img.shape[-1], 1)
-        rows = max(max_height // img.shape[-2], 1)
+    img_width = max(img.shape[-1], min_img_width)
+    img_height = max(img.shape[-1], min_img_height)
+
+    if rows is None:
+        rows = max(max_height // img_height, 1)
+
+    if columns is None:
+        columns = max(max_width // img_width, 1)
+
+    img_shape = (img_width, img_height)
 
     shown = 0
     num_figs = rows * columns
@@ -51,22 +61,42 @@ def visualize(data: str,
             plt.close()
             fig = plt.figure(figsize=(11, 11))
 
-        x, _ = sample
+        x, y = sample
 
         x = torch.squeeze(x)
 
         fig.add_subplot(rows, columns, idx + 1)
 
-        if x.dim() == 2:
-            plt.imshow(x, cmap="gray")
-        elif x.dim() == 3:
-            plt.imshow(x.moveaxis(0, -1))
-        else:
+        if x.dim() not in [2, 3]:
             raise ValueError(
                 f"Expected either 2 (grayscale) or 3 (RGB) channel images, found {x.dim()}"
             )
+
+        if x.dim() == 3:
+            x = x.moveaxis(0, -1)
+
+        cmap = "gray" if x.dim() == 2 else None
+
+        x = x.numpy()
+
+        if img.shape != img_shape:
+            x = cv2.resize(x, img_shape)
+
+        plt.imshow(x, cmap=cmap)
+
+        if dataset.task == "classification":
+            plt.title(dataset.classes[y.argmax()], fontdict={'fontsize': 8})
         plt.axis('off')
 
         if idx == num_figs - 1:
             shown += 1
+
+            # TODO: This needs to be dymaically calculated as it's based on image size...
+            # https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots_adjust.html
+            plt.subplots_adjust(left=0.1,
+                                bottom=0.1,
+                                right=0.9,
+                                top=0.9,
+                                wspace=0.4,
+                                hspace=0.4)
             plt.show()

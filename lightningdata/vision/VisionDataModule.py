@@ -100,7 +100,7 @@ class VisionDataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset,
-                          batch_size=1,
+                          batch_size=1 if self.task == "segmentation" else self.batch_size,
                           num_workers=self.num_workers,
                           persistent_workers=self.num_workers > 0,
                           shuffle=False,
