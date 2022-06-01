@@ -2,12 +2,15 @@ from pytorch_lightning.core.datamodule import LightningDataModule
 import os
 from torch.utils.data import DataLoader
 import albumentations as A
+import multiprocessing
 
 
 class VisionDataModule(LightningDataModule):
 
     def __init__(self,
-                 num_workers: int = int(os.environ.get("NUM_WORKERS", 0)),
+                 num_workers: int = int(
+                     os.environ.get("NUM_WORKERS",
+                                    multiprocessing.cpu_count() // 2)),
                  augment_policy_path: str = None,
                  batch_size: int = 4,
                  seed: int = 42,
@@ -99,13 +102,14 @@ class VisionDataModule(LightningDataModule):
             pin_memory=True)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset,
-                          batch_size=1 if self.task == "segmentation" else self.batch_size,
-                          num_workers=self.num_workers,
-                          persistent_workers=self.num_workers > 0,
-                          shuffle=False,
-                          drop_last=False,
-                          pin_memory=True)
+        return DataLoader(
+            self.test_dataset,
+            batch_size=1 if self.task == "segmentation" else self.batch_size,
+            num_workers=self.num_workers,
+            persistent_workers=self.num_workers > 0,
+            shuffle=False,
+            drop_last=False,
+            pin_memory=True)
 
     def predict_dataloader(self):
         return DataLoader(self.test_dataset,
