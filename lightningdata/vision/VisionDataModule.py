@@ -19,13 +19,12 @@ class VisionDataModule(LightningDataModule):
                  **kwargs):
 
         details = self.__class__.__module__.split(".")
+        self.dataset_name = details[-1]
 
         if not hasattr(self, 'category'):
             self.category = details[1]
         if not hasattr(self, 'task'):
             self.task = details[2]
-        if not hasattr(self, 'dataset_name'):
-            self.dataset_name = details[3]
 
         super().__init__(*args, **kwargs)
 
