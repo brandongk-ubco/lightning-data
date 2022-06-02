@@ -3,9 +3,12 @@ import os
 from torch.utils.data import DataLoader
 import albumentations as A
 import multiprocessing
+from torchvision import VisionDataset
 
 
 class VisionDataModule(LightningDataModule):
+
+    Dataset: VisionDataset
 
     def __init__(self,
                  num_workers: int = int(

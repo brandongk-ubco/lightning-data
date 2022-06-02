@@ -1,4 +1,3 @@
-from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from tqdm import tqdm
 import torch
 import pandas as pd

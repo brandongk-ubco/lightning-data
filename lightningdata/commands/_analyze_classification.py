@@ -1,13 +1,9 @@
-from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
 from tqdm import tqdm
-import torch
 import pandas as pd
 import os
 from ..helpers import composite_SD
 import pprint
 import json
-from scipy.ndimage.measurements import label
-import numpy as np
 
 
 def collect_stats(dataset):

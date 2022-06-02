@@ -1,8 +1,6 @@
 from .CompressedNpzDataset import CompressedNpzDataset
 from ..VisionDataModule import VisionDataModule
-import os
 from pytorch_lightning.utilities.cli import DATAMODULE_REGISTRY
-import albumentations as A
 
 
 class CityScapesDataset(CompressedNpzDataset):

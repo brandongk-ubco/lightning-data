@@ -1,6 +1,5 @@
 from ..VisionDataModule import VisionDataModule
 from torchvision import datasets
-import os
 from functools import partial
 import torch
 import logging
