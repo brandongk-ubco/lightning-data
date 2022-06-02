@@ -54,7 +54,7 @@ class FolderDataset(datasets.VisionDataset):
 
         self.classes = list(
             set([os.path.split(os.path.dirname(f))[-1] for f in self.data]))
-
+        self.classes.sort()
         random.Random(seed).shuffle(self.data)
 
         test_count = int(len(self.data) * test_percentage)
