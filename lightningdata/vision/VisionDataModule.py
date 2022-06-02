@@ -3,7 +3,7 @@ import os
 from torch.utils.data import DataLoader
 import albumentations as A
 import multiprocessing
-from torchvision import VisionDataset
+from torchvision.datasets import VisionDataset
 
 
 class VisionDataModule(LightningDataModule):
