@@ -53,7 +53,7 @@ class FolderDataset(datasets.VisionDataset):
             self.data += files
 
         self.classes = list(
-            set([os.path.split(os.path.dirname(f))[-1] for f in files]))
+            set([os.path.split(os.path.dirname(f))[-1] for f in self.data]))
 
         random.Random(seed).shuffle(self.data)
 

@@ -4,9 +4,23 @@ transform:
   __class_fullname__: Compose
   p: 1
   transforms:
+    - __class_fullname__: CropAndPad
+      p: 1.00
+      px:
+        - -4
+        - 4
     - __class_fullname__: Rotate
       p: 0.25
       limit: 10
+    - __class_fullname__: HorizontalFlip
+      p: 0.50
+    - __class_fullname__: CoarseDropout
+      p: 0.50
+      max_holes: 1
+      max_height: 8
+      max_width: 8
+      min_height: 1
+      min_width: 1
   bbox_params:
   keypoint_params:
   additional_targets: {}
