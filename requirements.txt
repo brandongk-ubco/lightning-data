@@ -5,3 +5,4 @@ torchvision
 albumentations
 argh
 matplotlib
+wget

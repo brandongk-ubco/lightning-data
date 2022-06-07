@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 import albumentations as A
 import multiprocessing
 from torchvision.datasets import VisionDataset
+from lightningdata.helpers import get_data_dir
 
 
 class VisionDataModule(LightningDataModule):
@@ -31,15 +32,7 @@ class VisionDataModule(LightningDataModule):
 
         super().__init__(*args, **kwargs)
 
-        if not data_dir:
-            data_dir = os.environ.get("OVERRIDE_DATA_DIR",
-                                      os.environ["DATA_DIR"])
-        if not data_dir:
-            raise ValueError(
-                "Must set data_dir, either through command line or DATA_DIR environment variable"
-            )
-        self.data_dir = os.path.join(os.path.abspath(data_dir),
-                                     self.dataset_name)
+        self.data_dir = get_data_dir(self.dataset_name)
 
         if augment_policy_path is None:
             override_file = os.path.join(os.getcwd(), "Augments.yaml")

@@ -7,7 +7,7 @@ from torchvision import datasets
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import torch
-from ...helpers import crop_image_only_outside
+from ..helpers import crop_image_only_outside
 
 
 def albumentations_transform(image, mask, transform):
