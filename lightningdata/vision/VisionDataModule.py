@@ -18,6 +18,7 @@ class VisionDataModule(LightningDataModule):
                  batch_size: int = 4,
                  seed: int = 42,
                  data_dir=None,
+                 preprocessing="normalization",
                  *args,
                  **kwargs):
 
@@ -65,23 +66,28 @@ class VisionDataModule(LightningDataModule):
 
         self.train_dataset = self.Dataset(root=self.data_dir,
                                           split="train",
+                                          preprocessing=preprocessing,
                                           transform=self.augments,
                                           seed=self.seed)
 
         self.val_dataset = self.Dataset(root=self.data_dir,
                                         split="val",
+                                        preprocessing=preprocessing,
                                         seed=self.seed)
 
         self.test_dataset = self.Dataset(root=self.data_dir,
                                          split="test",
+                                         preprocessing=preprocessing,
                                          seed=self.seed)
 
         self.predict_dataset = self.Dataset(root=self.data_dir,
                                             split="test",
+                                            preprocessing=preprocessing,
                                             seed=self.seed)
 
         self.all_dataset = self.Dataset(root=self.data_dir,
                                         split="all",
+                                        preprocessing=preprocessing,
                                         seed=self.seed)
 
     def train_dataloader(self):

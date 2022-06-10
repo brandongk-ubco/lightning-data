@@ -8,6 +8,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 import torch
 import PIL
+from ..helpers import equalize_hist
 
 
 def albumentations_transform(image, transform):
@@ -25,9 +26,11 @@ class FolderDataset(datasets.VisionDataset):
                  extensions=["tiff", "tif", "jpg", "jpeg", "gif", "png"],
                  patch_height=32,
                  patch_width=32,
+                 preprocessing="normalization",
                  seed=42):
 
         self.split = split
+        self.preprocessing = preprocessing
 
         assert split in ["all", "train", "val", "test"]
 
@@ -75,10 +78,28 @@ class FolderDataset(datasets.VisionDataset):
         image = PIL.Image.open(image_path)
         image_class = os.path.split(os.path.dirname(image_path))[-1]
         image = np.array(image)
+
+        if image.ndim == 2:
+            image = np.expand_dims(image, axis=-1)
+
         if image.shape[2] == 4:
             assert image[:, :, 3].min() == 255
             image = image[:, :, :3]
-        image = image.astype(np.float32) / 255.
+
+        if self.preprocessing == "equalization":
+            image = equalize_hist(image).astype(np.float32)
+        elif self.preprocessing == "normalization":
+            if image.shape[2] == 3:
+                image = A.Normalize(always_apply=True)(image=image)["image"]
+            else:
+                image = image - np.mean(image)
+                image = image / np.std(image)
+                image = image.astype(np.float32)
+        else:
+            raise ValueError(
+                "Invalid preprocessing selection.  Choose from {equalization, normalization, cifarnormalization}"
+            )
+
         targets = np.zeros(len(self.classes), dtype=np.float32)
         target_idx = self.classes.index(image_class)
         targets[target_idx] = 1.
@@ -90,6 +111,8 @@ class FolderDataset(datasets.VisionDataset):
 
         image = A.ToFloat(always_apply=True)(image=image)["image"]
         image = ToTensorV2(always_apply=True)(image=image)["image"]
+
+        image = image.squeeze()
 
         targets = torch.from_numpy(targets).to(image.dtype)
 

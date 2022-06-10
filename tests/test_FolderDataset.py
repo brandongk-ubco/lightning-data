@@ -20,3 +20,6 @@ class TestFolderDataset:
         assert len(folder_dataset.classes) == 2
         assert folder_dataset.classes[0] == 'a'
         assert folder_dataset.classes[1] == 'b'
+
+        for i in range(9):
+            folder_dataset.__getitem__(i)

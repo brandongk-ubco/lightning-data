@@ -82,6 +82,9 @@ def visualize(data: str,
         if img.shape != img_shape:
             x = cv2.resize(x, img_shape)
 
+        x = x - x.min()
+        x = x / x.max()
+
         plt.imshow(x, cmap=cmap)
 
         if dataset.task == "classification":
